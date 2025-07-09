@@ -6,6 +6,26 @@ import pyperclip    #clipboard control
 import json
 
 FONT = ("Comic Sans MS", 10)
+
+# ---------------------------- PASSWORD FINDER ------------------------------- #
+
+def find_password():
+    website_1 = website_entry.get()
+    try:
+        with open("pwd_data_json.json", "r") as file:
+            data = json.load(file)
+            username = data[f"{website_1}"]["username"]
+            password = data[f"{website_1}"]["password"]
+    except FileNotFoundError:
+        messagebox.showinfo(title="Alert!", message="No passwords exist!")
+    except KeyError:
+        messagebox.showinfo(title="Alert!", message=f"Site : {website_1} has no saved passwords!")
+    else:
+        messagebox.showinfo(title="Password found!", message=f"Saved password:\nWebsite: {website_1}\nUsername: {username}\nPassword: {password}")
+        pyperclip.copy(password)
+    finally:
+        website_entry.delete(0, END)
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 def generate_password():
@@ -19,7 +39,7 @@ def generate_password():
 
 #writing to file(JSON file method)
 def save_to_file():
-    current_datetime = datetime.now()
+    current_datetime = str(datetime.now())
     website_1 = website_entry.get()
     username_2 = username_entry.get()
     password_3 = password_entry.get()
@@ -28,6 +48,7 @@ def save_to_file():
         website_1:{
             "username" : username_2,
             "password" : password_3,
+            "datetime" : current_datetime,
         }
     }
 
@@ -47,11 +68,13 @@ def save_to_file():
                 #create file if it doesn't exist and write to it
                 with open("pwd_data_json.json", "w") as file:
                     json.dump(new_data, file, indent=4)
+                    messagebox.showinfo(title="Success!", message="Password saved!")
             else:
                 data.update(new_data)
                 #writing if file already exists
                 with open("pwd_data_json.json", "w") as file:
                     json.dump(data, file, indent=4)
+                messagebox.showinfo(title="Success!", message="Password saved!")
             # print("Password saved!")
             finally:
                 website_entry.delete(0,END)
@@ -109,15 +132,18 @@ username_entry.grid(row=2, column=1, columnspan=2, sticky="ew")
 username_entry.insert(0,"mandalorian@gmail.com")
 
 # password_entry = Entry(width=21, show="*")
-password_entry = Entry(width=21)
+password_entry = Entry(width=37)
 password_entry.grid(row=3, column=1, sticky="ew")
 
 #Buttons
 generate_pwd_button = Button(text="Generate Password", command=generate_password)
-generate_pwd_button.grid(row=3, column=2, sticky="ew")
+generate_pwd_button.grid(row=3, column=3, sticky="ew")
 
 add_button = Button(text="Add", width=36, command=save_to_file)
-add_button.grid(row=4, column=1, columnspan=2, sticky="ew")
+add_button.grid(row=4, column=1, columnspan=3, sticky="ew")
+
+search_button = Button(text="Search", command=find_password)
+search_button.grid(row=1, column=3, sticky="ew")
 
 
 
