@@ -2,7 +2,8 @@ from tkinter import *
 from datetime import datetime
 from tkinter import messagebox
 from PassGenerator import PassGen
-import pyperclip
+import pyperclip    #clipboard control
+import json
 
 FONT = ("Comic Sans MS", 10)
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -16,24 +17,65 @@ def generate_password():
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
-#writing to file
+#writing to file(JSON file method)
 def save_to_file():
     current_datetime = datetime.now()
     website_1 = website_entry.get()
     username_2 = username_entry.get()
     password_3 = password_entry.get()
 
+    new_data = {
+        website_1:{
+            "username" : username_2,
+            "password" : password_3,
+        }
+    }
+
     if len(website_1) == 0 or len(username_2) == 0 or len(password_3) == 0:
         messagebox.showinfo(title="Fields empty!", message="Please don't leave any fields empty!")
     else:
-        is_user_ok = messagebox.askokcancel(title=f"{website_1}", message=f"Please confirm your entry!\nUsername/email: {username_2}\nPassword: {password_3}")
+        is_user_ok = True
+        #optional confirmation window
+        # is_user_ok = messagebox.askokcancel(title=f"{website_1}", message=f"Please confirm your entry!\nUsername/email: {username_2}\nPassword: {password_3}")
         if is_user_ok:
-            with open("pwd_data.txt", "a+") as file:
-                file.write(f"Website: {website_1} | Username/Email: {username_2} | Password: {password_3} => added on/at : {current_datetime}\n")
-            print("Password saved!")
-            website_entry.delete(0,END)
-            # username_entry.delete(0,END)
-            password_entry.delete(0,END)
+
+            #loading(reading) the file
+            try:
+                with open("pwd_data_json.json", "r") as file:
+                    data = json.load(file)
+            except FileNotFoundError:
+                #create file if it doesn't exist and write to it
+                with open("pwd_data_json.json", "w") as file:
+                    json.dump(new_data, file, indent=4)
+            else:
+                data.update(new_data)
+                #writing if file already exists
+                with open("pwd_data_json.json", "w") as file:
+                    json.dump(data, file, indent=4)
+            # print("Password saved!")
+            finally:
+                website_entry.delete(0,END)
+                # username_entry.delete(0,END)
+                password_entry.delete(0,END)
+
+# #writing to file(text file method)
+# def save_to_file():
+#     current_datetime = datetime.now()
+#     website_1 = website_entry.get()
+#     username_2 = username_entry.get()
+#     password_3 = password_entry.get()
+#
+#     if len(website_1) == 0 or len(username_2) == 0 or len(password_3) == 0:
+#         messagebox.showinfo(title="Fields empty!", message="Please don't leave any fields empty!")
+#     else:
+#         is_user_ok = messagebox.askokcancel(title=f"{website_1}", message=f"Please confirm your entry!\nUsername/email: {username_2}\nPassword: {password_3}")
+#         if is_user_ok:
+#             with open("pwd_data.txt", "a+") as file:
+#                 file.write(f"Website: {website_1} | Username/Email: {username_2} | Password: {password_3} => added on/at : {current_datetime}\n")
+#             print("Password saved!")
+#             website_entry.delete(0,END)
+#             # username_entry.delete(0,END)
+#             password_entry.delete(0,END)
 
 # ---------------------------- UI SETUP ------------------------------- #
 
