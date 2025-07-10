@@ -4,8 +4,11 @@ from tkinter import messagebox
 from PassGenerator import PassGen
 import pyperclip    #clipboard control
 import json
+from cryptkeys import CryptKeys
 
 FONT = ("Comic Sans MS", 10)
+
+key_ops = CryptKeys()
 
 # ---------------------------- PASSWORD FINDER ------------------------------- #
 
@@ -15,7 +18,7 @@ def find_password():
         with open("pwd_data_json.json", "r") as file:
             data = json.load(file)
             username = data[f"{website_1}"]["username"]
-            password = data[f"{website_1}"]["password"]
+            password = key_ops.decrypt_password(data[f"{website_1}"]["password"])
     except FileNotFoundError:
         messagebox.showinfo(title="Alert!", message="No passwords exist!")
     except KeyError:
@@ -47,7 +50,7 @@ def save_to_file():
     new_data = {
         website_1:{
             "username" : username_2,
-            "password" : password_3,
+            "password" : key_ops.encrypt_password(password_3),
             "datetime" : current_datetime,
         }
     }
